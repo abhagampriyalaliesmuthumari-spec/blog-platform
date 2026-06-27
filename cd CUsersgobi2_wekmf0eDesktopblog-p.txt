@@ -1,0 +1,4 @@
+cd C:\Users\gobi2_wekmf0e\Desktop\blog-platform\backend
+.\venv\Scripts\Activate.ps1
+python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+http://127.0.0.1:8001

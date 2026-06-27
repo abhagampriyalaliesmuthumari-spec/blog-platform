@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #12121a; }
+        ::-webkit-scrollbar-thumb { background: #2d2d3d; border-radius: 3px; }
+
+        nav { background: #12121a; border-bottom: 1px solid #1e1e2e; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; height: 60px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); }
+        nav h1 { font-size: 18px; font-weight: 700; color: #818cf8; letter-spacing: -0.3px; }
+        nav h1 span { color: #64748b; font-weight: 400; }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-right span { font-size: 13px; color: #a1a1aa; }
+        .nav-right button { background: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; padding: 6px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .nav-right button:hover { background: #3f3f46; }
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 16px; }
+
+        .auth-wrap { display: flex; align-items: center; justify-content: center; min-height: 80vh; }
+        .auth-box { background: #12121a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; }
+        .auth-box h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; color: #f4f4f5; }
+        .auth-box .sub { color: #71717a; font-size: 14px; margin-bottom: 28px; }
+        .auth-box label { font-size: 13px; font-weight: 500; color: #a1a1aa; display: block; margin-bottom: 6px; }
+        .auth-box input { width: 100%; padding: 10px 14px; background: #18181b; border: 1px solid #27272a; border-radius: 10px; font-size: 14px; color: #e4e4e7; outline: none; margin-bottom: 16px; transition: 0.2s; }
+        .auth-box input:focus { border-color: #818cf8; box-shadow: 0 0 0 3px #818cf833; }
+        .auth-box button { width: 100%; padding: 11px; background: #818cf8; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .auth-box button:hover { background: #6366f1; }
+        .auth-box .toggle { text-align: center; margin-top: 18px; font-size: 13px; color: #71717a; }
+        .auth-box .toggle a { color: #818cf8; cursor: pointer; }
+        .auth-box .toggle a:hover { text-decoration: underline; }
+        .auth-box .error { color: #f87171; font-size: 13px; text-align: center; margin-bottom: 12px; background: #7f1d1d20; padding: 8px; border-radius: 8px; }
+
+        .blog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .blog-header h2 { font-size: 22px; font-weight: 600; }
+        .blog-header .btn { background: #818cf8; color: #fff; border: none; padding: 10px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .blog-header .btn:hover { background: #6366f1; }
+
+        .post-card { background: #12121a; border: 1px solid #1e1e2e; border-radius: 14px; padding: 24px 28px; margin-bottom: 14px; cursor: pointer; transition: 0.2s; }
+        .post-card:hover { border-color: #2d2d3d; background: #16161e; }
+        .post-card h3 { font-size: 17px; font-weight: 600; color: #f4f4f5; margin-bottom: 6px; }
+        .post-card .meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #71717a; margin-bottom: 10px; }
+        .post-card .meta .dot { width: 4px; height: 4px; background: #3f3f46; border-radius: 50%; }
+        .post-card .meta .tag { background: #818cf820; color: #a5b4fc; padding: 2px 10px; border-radius: 99px; font-size: 11px; }
+        .post-card .preview { font-size: 14px; color: #a1a1aa; line-height: 1.6; }
+        .post-card .footer { display: flex; align-items: center; gap: 16px; margin-top: 14px; font-size: 12px; color: #52525b; }
+        .post-card .footer .comments-count { display: flex; align-items: center; gap: 4px; }
+
+        .detail-wrap { animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .back { display: inline-flex; align-items: center; gap: 6px; color: #818cf8; cursor: pointer; font-size: 13px; margin-bottom: 20px; transition: 0.2s; }
+        .back:hover { color: #a5b4fc; }
+        .detail-card { background: #12121a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 32px; }
+        .detail-card h2 { font-size: 26px; font-weight: 700; color: #f4f4f5; margin-bottom: 10px; line-height: 1.3; }
+        .detail-card .meta { font-size: 13px; color: #71717a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .detail-card .meta .tag { background: #818cf820; color: #a5b4fc; padding: 2px 12px; border-radius: 99px; font-size: 12px; }
+        .detail-card .body { font-size: 15px; line-height: 1.8; color: #d4d4d8; white-space: pre-wrap; }
+        .detail-card .actions { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #1e1e2e; }
+        .detail-card .actions button { padding: 8px 20px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .detail-card .actions .edit-btn { background: #27272a; color: #e4e4e7; }
+        .detail-card .actions .edit-btn:hover { background: #3f3f46; }
+        .detail-card .actions .del-btn { background: #7f1d1d; color: #fca5a5; }
+        .detail-card .actions .del-btn:hover { background: #991b1b; }
+
+        .comments-section { margin-top: 24px; }
+        .comments-section h3 { font-size: 16px; font-weight: 600; color: #d4d4d8; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .comments-section h3 span { background: #27272a; padding: 2px 10px; border-radius: 99px; font-size: 12px; color: #71717a; }
+        .comment-card { background: #16161e; border: 1px solid #1e1e2e; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; }
+        .comment-card .meta { font-size: 12px; color: #71717a; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .comment-card .meta .del { color: #f87171; cursor: pointer; font-size: 12px; margin-left: auto; opacity: 0; transition: 0.2s; }
+        .comment-card:hover .meta .del { opacity: 1; }
+        .comment-card .text { font-size: 14px; color: #d4d4d8; }
+        .comment-form { display: flex; gap: 10px; margin-top: 16px; }
+        .comment-form input { flex: 1; padding: 11px 16px; background: #18181b; border: 1px solid #27272a; border-radius: 10px; font-size: 14px; color: #e4e4e7; outline: none; transition: 0.2s; }
+        .comment-form input:focus { border-color: #818cf8; }
+        .comment-form button { padding: 11px 22px; background: #818cf8; color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .comment-form button:hover { background: #6366f1; }
+
+        .form-panel { background: #12121a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 32px; margin-bottom: 20px; animation: fadeIn 0.2s ease; }
+        .form-panel h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .form-panel label { font-size: 13px; font-weight: 500; color: #a1a1aa; display: block; margin-bottom: 6px; }
+        .form-panel input, .form-panel textarea { width: 100%; padding: 11px 16px; background: #18181b; border: 1px solid #27272a; border-radius: 10px; font-size: 14px; color: #e4e4e7; outline: none; margin-bottom: 16px; transition: 0.2s; font-family: inherit; }
+        .form-panel textarea { min-height: 140px; resize: vertical; }
+        .form-panel input:focus, .form-panel textarea:focus { border-color: #818cf8; }
+        .form-panel .btn-row { display: flex; gap: 10px; }
+        .form-panel .btn-row .primary { padding: 10px 24px; background: #818cf8; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .form-panel .btn-row .primary:hover { background: #6366f1; }
+        .form-panel .btn-row .secondary { padding: 10px 24px; background: #27272a; color: #e4e4e7; border: none; border-radius: 10px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .form-panel .btn-row .secondary:hover { background: #3f3f46; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #22c55e; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 32px #00000055; z-index: 200; animation: slideUp 0.3s ease; }
+        .toast.error { background: #ef4444; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hide { display: none !important; }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state p { color: #52525b; font-size: 15px; }
+        .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>blog <span>platform</span></h1>
+        <div class="nav-right" id="nav-user" style="display:none">
+            <span id="nav-username"></span>
+            <button onclick="logout()">logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="auth-page">
+            <div class="auth-wrap">
+                <div class="auth-box" id="login-box">
+                    <h2>welcome back</h2>
+                    <p class="sub">sign in to your account</p>
+                    <div class="error" id="login-error"></div>
+                    <label>Username</label>
+                    <input type="text" id="login-user" autocomplete="off">
+                    <label>Password</label>
+                    <input type="password" id="login-pass">
+                    <button onclick="login()">Sign In</button>
+                    <div class="toggle">no account? <a onclick="showRegister()">create one</a></div>
+                </div>
+                <div class="auth-box hide" id="register-box">
+                    <h2>create account</h2>
+                    <p class="sub">join the blog platform</p>
+                    <div class="error" id="register-error"></div>
+                    <label>Username</label>
+                    <input type="text" id="register-user" autocomplete="off">
+                    <label>Password</label>
+                    <input type="password" id="register-pass">
+                    <button onclick="register()">Sign Up</button>
+                    <div class="toggle">already have one? <a onclick="showLogin()">sign in</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="blog-page" class="hide">
+            <div id="post-list">
+                <div class="blog-header">
+                    <h2>posts</h2>
+                    <button class="btn" onclick="showNewPost()">+ New Post</button>
+                </div>
+                <div id="posts-container"><div class="empty-state"><div class="icon">📝</div><p>no posts yet — be the first to write</p></div></div>
+            </div>
+
+            <div id="post-detail" class="hide">
+                <a class="back" onclick="showList()">← back to posts</a>
+                <div class="detail-wrap" id="detail-content"></div>
+            </div>
+
+            <div id="new-post-form" class="form-panel hide">
+                <h3 id="form-title">New Post</h3>
+                <label>Title</label>
+                <input type="text" id="post-title" placeholder="your post title">
+                <label>Content</label>
+                <textarea id="post-content" placeholder="write your thoughts..."></textarea>
+                <div class="btn-row">
+                    <button class="primary" id="form-submit" onclick="savePost()">Publish</button>
+                    <button class="secondary" onclick="cancelForm()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '';
+        let token = localStorage.getItem('token') || '';
+        let currentPostId = null;
+        let editingPostId = null;
+
+        function toast(msg, type = '') {
+            const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+            document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+        }
+
+        function api(path, opts = {}) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            return fetch(API + path, { ...opts, headers }).then(r => {
+                if (r.status === 204) return null;
+                return r.json().then(d => { if (!r.ok) throw new Error(d.detail || 'Error'); return d; });
+            });
+        }
+
+        function showRegister() { document.getElementById('login-box').classList.add('hide'); document.getElementById('register-box').classList.remove('hide'); }
+        function showLogin() { document.getElementById('register-box').classList.add('hide'); document.getElementById('login-box').classList.remove('hide'); }
+
+        async function login() {
+            try {
+                const res = await api('/api/login', { method: 'POST', body: JSON.stringify({ username: document.getElementById('login-user').value, password: document.getElementById('login-pass').value }) });
+                token = res.token; localStorage.setItem('token', token); initApp(); toast('signed in');
+            } catch (e) { document.getElementById('login-error').textContent = e.message; }
+        }
+
+        async function register() {
+            try {
+                const res = await api('/api/register', { method: 'POST', body: JSON.stringify({ username: document.getElementById('register-user').value, password: document.getElementById('register-pass').value }) });
+                token = res.token; localStorage.setItem('token', token); initApp(); toast('account created');
+            } catch (e) { document.getElementById('register-error').textContent = e.message; }
+        }
+
+        function logout() {
+            token = ''; localStorage.removeItem('token');
+            document.getElementById('blog-page').classList.add('hide');
+            document.getElementById('auth-page').classList.remove('hide');
+            document.getElementById('nav-user').style.display = 'none';
+            toast('signed out');
+        }
+
+        async function initApp() {
+            document.getElementById('auth-page').classList.add('hide');
+            document.getElementById('blog-page').classList.remove('hide');
+            try {
+                const me = await api('/api/me');
+                document.getElementById('nav-username').textContent = me.username;
+                document.getElementById('nav-user').style.display = 'flex';
+                showList();
+            } catch { logout(); }
+        }
+
+        function showList() {
+            currentPostId = null;
+            document.getElementById('post-list').classList.remove('hide');
+            document.getElementById('post-detail').classList.add('hide');
+            document.getElementById('new-post-form').classList.add('hide');
+            loadPosts();
+        }
+
+        async function loadPosts() {
+            const posts = await api('/api/posts');
+            const container = document.getElementById('posts-container');
+            if (posts.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>no posts yet — be the first to write</p></div>';
+                return;
+            }
+            container.innerHTML = posts.map(p => `
+                <div class="post-card" onclick="showPost(${p.id})">
+                    <h3>${esc(p.title)}</h3>
+                    <div class="meta"><span class="tag">${esc(p.author)}</span><span class="dot"></span>${fmt(p.created_at)}</div>
+                    <div class="preview">${esc(p.content).slice(0, 200)}${p.content.length > 200 ? '...' : ''}</div>
+                    <div class="footer">
+                        <span class="comments-count">💬 ${p.comment_count}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function showPost(id) {
+            currentPostId = id;
+            document.getElementById('post-list').classList.add('hide');
+            document.getElementById('new-post-form').classList.add('hide');
+            document.getElementById('post-detail').classList.remove('hide');
+
+            const post = await api('/api/posts/' + id);
+            const comments = await api(`/api/posts/${id}/comments`);
+            const me = await api('/api/me');
+
+            document.getElementById('detail-content').innerHTML = `
+                <div class="detail-card">
+                    <h2>${esc(post.title)}</h2>
+                    <div class="meta"><span class="tag">${esc(post.author)}</span> · ${fmt(post.created_at)}</div>
+                    <div class="body">${esc(post.content)}</div>
+                    ${post.author === me.username ? `
+                        <div class="actions">
+                            <button class="edit-btn" onclick="editPost(${post.id})">✎ Edit</button>
+                            <button class="del-btn" onclick="deletePost(${post.id})">✕ Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="comments-section">
+                    <h3>comments <span>${comments.length}</span></h3>
+                    ${comments.length === 0 ? '<div style="color:#52525b;font-size:14px;padding:12px 0">no comments yet</div>' : ''}
+                    ${comments.map(c => `
+                        <div class="comment-card">
+                            <div class="meta"><span style="color:#a5b4fc;font-weight:500">${esc(c.author)}</span> · ${fmt(c.created_at)}${c.author === me.username ? `<span class="del" onclick="deleteComment(${c.id})">✕</span>` : ''}</div>
+                            <div class="text">${esc(c.content)}</div>
+                        </div>
+                    `).join('')}
+                    <div class="comment-form">
+                        <input type="text" id="comment-input" placeholder="write a comment...">
+                        <button onclick="addComment(${id})">Post</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function addComment(postId) {
+            const input = document.getElementById('comment-input');
+            if (!input.value.trim()) return;
+            await api(`/api/posts/${postId}/comments`, { method: 'POST', body: JSON.stringify({ content: input.value }) });
+            input.value = ''; showPost(postId); toast('comment added');
+        }
+
+        async function deleteComment(id) {
+            if (!confirm('Delete this comment?')) return;
+            await api('/api/comments/' + id, { method: 'DELETE' });
+            showPost(currentPostId); toast('comment deleted');
+        }
+
+        function showNewPost() {
+            editingPostId = null;
+            document.getElementById('form-title').textContent = 'New Post';
+            document.getElementById('form-submit').textContent = 'Publish';
+            document.getElementById('post-title').value = '';
+            document.getElementById('post-content').value = '';
+            document.getElementById('post-list').classList.add('hide');
+            document.getElementById('post-detail').classList.add('hide');
+            document.getElementById('new-post-form').classList.remove('hide');
+        }
+
+        async function editPost(id) {
+            editingPostId = id;
+            const post = await api('/api/posts/' + id);
+            document.getElementById('form-title').textContent = 'Edit Post';
+            document.getElementById('form-submit').textContent = 'Update';
+            document.getElementById('post-title').value = post.title;
+            document.getElementById('post-content').value = post.content;
+            document.getElementById('post-detail').classList.add('hide');
+            document.getElementById('new-post-form').classList.remove('hide');
+        }
+
+        function cancelForm() {
+            editingPostId = null;
+            if (currentPostId) showPost(currentPostId);
+            else showList();
+        }
+
+        async function savePost() {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            if (!title.trim() || !content.trim()) return toast('fill all fields', 'error');
+
+            if (editingPostId) {
+                await api('/api/posts/' + editingPostId, { method: 'PUT', body: JSON.stringify({ title, content }) });
+                editingPostId = null; showPost(currentPostId); toast('post updated');
+            } else {
+                const post = await api('/api/posts', { method: 'POST', body: JSON.stringify({ title, content }) });
+                showPost(post.id); toast('post published');
+            }
+        }
+
+        async function deletePost(id) {
+            if (!confirm('Delete this post permanently?')) return;
+            await api('/api/posts/' + id, { method: 'DELETE' });
+            showList(); toast('post deleted');
+        }
+
+        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function fmt(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+
+        if (token) { initApp().catch(() => { token = ''; localStorage.removeItem('token'); }); }
+    </script>
+</body>
+</html>
